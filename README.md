@@ -56,7 +56,7 @@ This sample demonstrates how to create and work with AI agents driven by [Azure 
 This project template provides the following features:
 
 * [Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/) for multi-agent orchestration (the successor to AutoGen and Semantic Kernel)
-* Current-generation models: `gpt-5.6-sol` for the agents and `text-embedding-3-large` for retrieval
+* Current-generation models: `gpt-5.6-terra` for the agents and `text-embedding-3-large` for retrieval
 * [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/) in [Microsoft Foundry](https://learn.microsoft.com/azure/ai-foundry/) to drive the agents
 * [Prompty](https://prompty.ai/) to create and manage the prompts that define each agent's intent
 * [Bing Grounding Tool](https://learn.microsoft.com/en-us/azure/ai-services/agents/how-to/tools/bing-grounding) to research the topic provided
@@ -89,7 +89,7 @@ flowchart LR
     subgraph agents["Microsoft Agent Framework"]
       r["Researcher"] --> p["Product Marketing"] --> w["Writer"] --> e["Editor"]
     end
-    m1[["gpt-5.6-sol"]]
+    m1[["gpt-5.6-terra"]]
     emb[["text-embedding-3-large"]]
     bing{{"Bing Grounding"}}
     srch[("Azure AI Search")]
@@ -118,7 +118,7 @@ flowchart LR
 
 * **Azure account**. If you're new to Azure, [get an Azure account for free](https://azure.microsoft.com/free/cognitive-search/) and you'll get some free Azure credits to get started. See [guide to deploying with the free trial](docs/deploy_lowcost.md).
 * **Azure subscription with access enabled for the Azure OpenAI Service**. If your access request to Azure OpenAI Service doesn't match the [acceptance criteria](https://learn.microsoft.com/legal/cognitive-services/openai/limited-access?context=%2Fazure%2Fcognitive-services%2Fopenai%2Fcontext%2Fcontext), you can use [OpenAI public API](https://platform.openai.com/docs/api-reference/introduction) instead.
-    - Ability to deploy `gpt-5.6-sol` and `text-embedding-3-large`. Currently you will need enough TPM on the chat deployment to use the Bing Grounding tool. 
+    - Ability to deploy `gpt-5.6-terra` and `text-embedding-3-large`. Currently you will need enough TPM on the chat deployment to use the Bing Grounding tool. 
     - We recommend using a region that has access to all models and services required.
 * **Azure subscription with access enabled for [Bing Grounding](https://learn.microsoft.com/en-us/azure/ai-services/agents/how-to/tools/bing-grounding?view=azure-python-preview&tabs=python&pivots=overview)**
 * **Azure subscription with access enabled for [Azure AI Search](https://azure.microsoft.com/en-gb/products/ai-services/ai-search)**

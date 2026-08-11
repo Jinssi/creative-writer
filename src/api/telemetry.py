@@ -14,9 +14,7 @@ from fastapi import FastAPI
 from azure.core.settings import settings
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
-from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace as oteltrace
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prompty.tracer import Tracer, PromptyTracer, console_tracer
 
 _tracer = "prompty"
@@ -67,6 +65,18 @@ def _enable_agent_framework_observability(connection_string: str | None) -> None
         print(f"Agent Framework observability not enabled: {exc}")
 
 
+def _configure_azure_monitor(connection_string: str) -> bool:
+    """Best-effort Azure Monitor setup; never fatal (OTel version skews can break import)."""
+    try:
+        from azure.monitor.opentelemetry import configure_azure_monitor
+
+        configure_azure_monitor(connection_string=connection_string)
+        return True
+    except Exception as exc:  # noqa: BLE001 - keep the app running without Azure Monitor
+        print(f"Azure Monitor tracing not enabled: {exc}")
+        return False
+
+
 def setup_telemetry(app: FastAPI):
     settings.tracing_implementation = "OpenTelemetry"
     local_tracing_enabled = (os.getenv("LOCAL_TRACING_ENABLED") or "").lower() == "true"
@@ -80,10 +90,14 @@ def setup_telemetry(app: FastAPI):
         if not connection_string:
             print("Application Insights is not configured for this project.")
             print("Set APPLICATIONINSIGHTS_CONNECTION_STRING or enable tracing on the Foundry project.")
-        else:
-            configure_azure_monitor(connection_string=connection_string)
+        elif _configure_azure_monitor(connection_string):
             Tracer.add("OpenTelemetry", trace_span)
             _enable_agent_framework_observability(connection_string)
 
-    # Instrument FastAPI and exclude the send span to reduce noise
-    FastAPIInstrumentor.instrument_app(app, exclude_spans=["send"])
+    # Instrument FastAPI (best-effort; never fatal)
+    try:
+        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+        FastAPIInstrumentor.instrument_app(app, exclude_spans=["send"])
+    except Exception as exc:  # noqa: BLE001
+        print(f"FastAPI instrumentation not enabled: {exc}")

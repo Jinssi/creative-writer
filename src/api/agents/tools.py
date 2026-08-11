@@ -27,7 +27,7 @@ def research_topic(
     Returns a JSON string of the form ``{"web": [{"url","name","description"}], ...}``.
     """
     endpoint = os.environ["AZURE_AI_PROJECT_ENDPOINT"]
-    deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-sol")
+    deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-terra")
     connection_name = os.getenv("BING_CONNECTION_NAME", "bing-connection")
 
     with AIProjectClient(endpoint=endpoint, credential=get_credential()) as project:

@@ -39,7 +39,7 @@ def chat_client(model: str | None = None) -> FoundryChatClient:
     """Create a Foundry chat client bound to a model deployment."""
     return FoundryChatClient(
         project_endpoint=_project_endpoint(),
-        model=model or os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-sol"),
+        model=model or os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-terra"),
         credential=get_credential(),
     )
 

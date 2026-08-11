@@ -9,12 +9,6 @@
 # 
 # You can find the names and keys in the Azure Portal. These need to be entered in a `.env` file in the root of this repository. The `.env` file is not checked in to source control. You can use the [`.env.sample`](../../.env.sample) file as a template.
 
-# In[1]:
-
-
-get_ipython().system(' pip install pandas, azure-identity, azure-search-documents, openai, python-dotenv')
-
-
 # In[2]:
 
 

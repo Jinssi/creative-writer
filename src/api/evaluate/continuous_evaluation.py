@@ -39,7 +39,7 @@ def enable_continuous_evaluation(sampling_percent: int = 20, max_request_rate: i
 
     endpoint = os.environ["AZURE_AI_PROJECT_ENDPOINT"]
     app_insights_conn = os.environ["APPLICATIONINSIGHTS_CONNECTION_STRING"]
-    eval_deployment = os.getenv("AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME", "gpt-5.6-sol-eval")
+    eval_deployment = os.getenv("AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME", "gpt-5.6-luna")
 
     evaluators = {
         "intent_resolution": EvaluatorConfiguration(id=EvaluatorIds.INTENT_RESOLUTION.value),

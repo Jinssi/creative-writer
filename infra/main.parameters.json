@@ -33,10 +33,10 @@
       "value": "${AZURE_OPENAI_API_VERSION=2025-04-01-preview}"
     },
     "chatDeploymentName": {
-      "value": "${AZURE_OPENAI_DEPLOYMENT_NAME=gpt-5.6-sol}"
+      "value": "${AZURE_OPENAI_DEPLOYMENT_NAME=gpt-5.6-terra}"
     },
     "evalDeploymentName": {
-      "value": "${AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME=gpt-5.6-sol-eval}"
+      "value": "${AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME=gpt-5.6-luna}"
     },
     "embeddingDeploymentName": {
       "value": "${AZURE_EMBEDDING_NAME=text-embedding-3-large}"

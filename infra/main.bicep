@@ -21,8 +21,8 @@ param aiProjectEndpoint string
 param openAiEndpoint string
 param openAiName string
 param openAiApiVersion string = '2025-04-01-preview'
-param chatDeploymentName string = 'gpt-5.6-sol'
-param evalDeploymentName string = 'gpt-5.6-sol-eval'
+param chatDeploymentName string = 'gpt-5.6-terra'
+param evalDeploymentName string = 'gpt-5.6-luna'
 param embeddingDeploymentName string = 'text-embedding-3-large'
 param bingConnectionName string
 param searchEndpoint string

@@ -260,7 +260,7 @@ def evaluate_image(project_scope, image_path):
 
         print(f"\n===== Calling Open AI to describe image and retrieve response")
         completion = client.chat.completions.create(
-        model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-sol"),
+        model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-terra"),
         messages= [
                         {
                             "role": "system", 

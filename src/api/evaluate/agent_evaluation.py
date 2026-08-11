@@ -19,7 +19,7 @@ from azure.ai.evaluation import (
 
 def _model_config() -> dict:
     return {
-        "azure_deployment": os.environ.get("AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME", "gpt-5.6-sol-eval"),
+        "azure_deployment": os.environ.get("AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME", "gpt-5.6-luna"),
         "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2025-04-01-preview"),
         "azure_endpoint": os.environ.get(
             "AZURE_OPENAI_ENDPOINT",

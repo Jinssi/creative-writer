@@ -24,8 +24,12 @@ azure-ai-inference
 azure-keyvault-secrets
 
 # ---- Microsoft Agent Framework (multi-agent orchestration) ----
-agent-framework
-agent-framework-azure-ai
+# Foundry chat client (FoundryChatClient) lives in agent-framework-foundry.
+# Avoid the `agent-framework` meta package, which pulls every integration
+# (incl. agent-framework-azure-ai-search) and causes pip resolver backtracking
+# against azure-search-documents.
+agent-framework-core
+agent-framework-foundry
 
 # ---- Observability (OpenTelemetry -> Application Insights) ----
 opentelemetry-instrumentation-fastapi

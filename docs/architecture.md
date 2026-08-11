@@ -22,8 +22,8 @@ flowchart LR
     subgraph agents["Microsoft Agent Framework (multi-agent)"]
       r["Researcher"] --> p["Product Marketing"] --> w["Writer"] --> e["Editor"]
     end
-    m1[["gpt-5.6-sol<br/>(agents)"]]
-    m2[["gpt-5.6-sol-eval<br/>(judge)"]]
+    m1[["gpt-5.6-terra<br/>(agents)"]]
+    m2[["gpt-5.6-luna<br/>(judge)"]]
     emb[["text-embedding-3-large"]]
     bing{{"Bing Grounding"}}
     srch[("Azure AI Search<br/>contoso-products index")]
@@ -54,7 +54,7 @@ flowchart LR
    workflow on the **Microsoft Agent Framework**:
    **Researcher** (Bing grounding) → **Product Marketing** (Azure AI Search
    vector retrieval) → **Writer** → **Editor** (with a feedback loop).
-3. The agents call the Foundry models (`gpt-5.6-sol`, embeddings
+3. The agents call the Foundry models (`gpt-5.6-terra`, embeddings
    `text-embedding-3-large`) in the reused project.
 4. Traces (agents, tools, model calls) are exported via **OpenTelemetry** to
    **Application Insights** and surface in the Foundry Agent Monitor.
