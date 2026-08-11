@@ -55,12 +55,62 @@ This sample demonstrates how to create and work with AI agents driven by [Azure 
 
 This project template provides the following features:
 
-* [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/) to drive the various agents
-* [Prompty](https://prompty.ai/) to create, manage and evaluate the prompt into our code.
-* [Bing Grounding Tool](https://learn.microsoft.com/en-us/azure/ai-services/agents/how-to/tools/bing-grounding?view=azure-python-preview&tabs=python&pivots=overview) to research the topic provided
+* [Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/) for multi-agent orchestration (the successor to AutoGen and Semantic Kernel)
+* Current-generation models: `gpt-5.6-sol` for the agents and `text-embedding-3-large` for retrieval
+* [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/) in [Microsoft Foundry](https://learn.microsoft.com/azure/ai-foundry/) to drive the agents
+* [Prompty](https://prompty.ai/) to create and manage the prompts that define each agent's intent
+* [Bing Grounding Tool](https://learn.microsoft.com/en-us/azure/ai-services/agents/how-to/tools/bing-grounding) to research the topic provided
 * [Azure AI Search](https://azure.microsoft.com/en-gb/products/ai-services/ai-search) for performing semantic similarity search
-  
-![Architecture Digram](images/Creative_writing_aca.png)
+* **Tracing** (GA) — OpenTelemetry traces exported to Application Insights
+* **Evaluation** (GA) — groundedness, relevance, coherence, safety, task completion, and tool-call accuracy
+* **Continuous evaluation** (Preview) — samples live agent responses
+* **Scheduled evaluation & AI red teaming** (Preview)
+* **Agent Monitor dashboard** (Preview) in the Foundry portal
+
+See [docs/observability_and_evaluation.md](docs/observability_and_evaluation.md) for how these map to the code.
+
+## Architecture
+
+The app is deployed as a secure Azure Container Apps service that **reuses** an existing Microsoft Foundry project for all AI, and hosts only the frontends/compute in a dedicated resource group. Blue = reused shared Foundry, green = new compute. Full details in [docs/architecture.md](docs/architecture.md).
+
+```mermaid
+flowchart LR
+  user([User / Browser])
+
+  subgraph RG1["RG: Contoso-Creative-Writer · NEW compute"]
+    web["agent-web<br/>Container App · React + nginx"]
+    api["agent-api<br/>Container App · FastAPI"]
+    acr[("Container Registry")]
+    obs["App Insights + Log Analytics"]
+  end
+
+  subgraph RG2["RG: Contoso-Video-Prod-AI · REUSED Foundry"]
+    proj["Foundry project"]
+    subgraph agents["Microsoft Agent Framework"]
+      r["Researcher"] --> p["Product Marketing"] --> w["Writer"] --> e["Editor"]
+    end
+    m1[["gpt-5.6-sol"]]
+    emb[["text-embedding-3-large"]]
+    bing{{"Bing Grounding"}}
+    srch[("Azure AI Search")]
+  end
+
+  mi[/"Managed Identity<br/>Contoso-Video-Builder-MI"/]
+
+  user -->|HTTPS| web -->|/api| api --> agents
+  r -->|research| bing
+  p -->|vector search| srch
+  agents --> proj --> m1 & emb
+  api -. OpenTelemetry .-> obs
+  api ==>|"Entra ID · no keys"| mi
+  mi -. "RBAC: Foundry + Search + AcrPull" .-> proj
+  api -->|image pull| acr
+
+  classDef reuse fill:#eef7ff,stroke:#4488cc;
+  classDef new fill:#eefaf0,stroke:#33aa66;
+  class proj,agents,r,p,w,e,m1,emb,bing,srch reuse;
+  class web,api,acr,obs new;
+```
 
 ## Azure account requirements
 
@@ -68,8 +118,8 @@ This project template provides the following features:
 
 * **Azure account**. If you're new to Azure, [get an Azure account for free](https://azure.microsoft.com/free/cognitive-search/) and you'll get some free Azure credits to get started. See [guide to deploying with the free trial](docs/deploy_lowcost.md).
 * **Azure subscription with access enabled for the Azure OpenAI Service**. If your access request to Azure OpenAI Service doesn't match the [acceptance criteria](https://learn.microsoft.com/legal/cognitive-services/openai/limited-access?context=%2Fazure%2Fcognitive-services%2Fopenai%2Fcontext%2Fcontext), you can use [OpenAI public API](https://platform.openai.com/docs/api-reference/introduction) instead.
-    - Ability to deploy `gpt-4o` and `gpt-4o-mini`. Currently you will need at least 80TPM for gpt-4o to use the Bing Grounding tool. 
-    - We recommend using `eastus2`, as this region has access to all models and services required. 
+    - Ability to deploy `gpt-5.6-sol` and `text-embedding-3-large`. Currently you will need enough TPM on the chat deployment to use the Bing Grounding tool. 
+    - We recommend using a region that has access to all models and services required.
 * **Azure subscription with access enabled for [Bing Grounding](https://learn.microsoft.com/en-us/azure/ai-services/agents/how-to/tools/bing-grounding?view=azure-python-preview&tabs=python&pivots=overview)**
 * **Azure subscription with access enabled for [Azure AI Search](https://azure.microsoft.com/en-gb/products/ai-services/ai-search)**
 

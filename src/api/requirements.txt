@@ -1,33 +1,32 @@
+# Container runtime requirements (kept lean so the image builds quickly and reliably).
+# Evaluation / red-teaming / notebook tooling live in requirements-dev.txt and are
+# used by the eval scripts and CI, not the running API.
 fastapi
 fastapi[standard]
 openai
 requests
 prompty[azure]==0.1.40
-azure-ai-evaluation
 pandas
-opentelemetry-instrumentation-fastapi
 jsonlines
 python-dotenv==1.0.1
-azure-search-documents==11.4.0
+azure-search-documents
 gunicorn==23.0.0
-jupyter
-opentelemetry-sdk
-opentelemetry-instrumentation
-azure-identity==1.19.0
-gunicorn==23.0.0
-azure-keyvault-secrets
-aiohttp==3.10.11
-azure-cognitiveservices-speech==1.37.0
-nbconvert
-azure-ai-evaluation
-azure-ai-evaluation[remote]
 validators
-azureml-mlflow
-azure-monitor-opentelemetry
-opentelemetry-instrumentation-openai
-azure-ai-inference[opentelemetry]
-azure-ai-projects==1.0.0b4
-azure-ai-contentsafety
-azure-ai-ml
 tenacity
 marshmallow==3.23.2
+aiohttp==3.10.11
+
+# ---- Identity & Foundry (current generation, endpoint-based) ----
+azure-identity
+azure-ai-projects>=1.0.0
+azure-ai-agents>=1.0.0
+azure-ai-inference
+azure-keyvault-secrets
+
+# ---- Microsoft Agent Framework (multi-agent orchestration) ----
+agent-framework
+agent-framework-azure-ai
+
+# ---- Observability (OpenTelemetry -> Application Insights) ----
+opentelemetry-instrumentation-fastapi
+azure-monitor-opentelemetry

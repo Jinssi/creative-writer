@@ -78,8 +78,8 @@ def create_index_definition(name: str) -> SearchIndex:
             name="contentVector",
             type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
             searchable=True,
-            # Size of the vector created by the text-embedding-ada-002 model.
-            vector_search_dimensions=1536,
+            # Size of the vector created by the text-embedding-3-large model.
+            vector_search_dimensions=3072,
             vector_search_profile_name="myHnswProfile",
         ),
     ]
@@ -150,12 +150,12 @@ def gen_products(
     path: str,
 ) -> List[Dict[str, any]]:
     openai_service_endoint = os.environ["AZURE_OPENAI_ENDPOINT"]
-    openai_deployment = "text-embedding-ada-002"
+    openai_deployment = os.getenv("AZURE_EMBEDDING_NAME", "text-embedding-3-large")
     # openai.Embedding.create() -> client.embeddings.create()
     azure_credential = DefaultAzureCredential()
     token_provider = get_bearer_token_provider(azure_credential,"https://cognitiveservices.azure.com/.default")
     client = AzureOpenAI(
-        api_version="2024-08-01-preview",
+        api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview"),
         azure_endpoint=openai_service_endoint,
         azure_deployment=openai_deployment,
         azure_ad_token_provider=token_provider
@@ -192,7 +192,10 @@ search_index_client = SearchIndexClient(
     aisearch_endpoint, DefaultAzureCredential()
 )
 
-delete_index(search_index_client, index_name)
+try:
+    delete_index(search_index_client, index_name)
+except Exception:
+    print(f"index {index_name} did not exist yet")
 index = create_index_definition(index_name)
 print(f"creating index {index_name}")
 search_index_client.create_or_update_index(index)

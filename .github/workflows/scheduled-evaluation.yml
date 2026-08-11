@@ -1,29 +1,27 @@
-name: Evaluate
+name: Scheduled Evaluation and Red Teaming
 
+# Scheduled (Preview) evaluation + AI red teaming of the Creative Writer agents.
+# Runs the batch quality/safety evaluators and the red-team agent on a cadence and
+# on demand. Results upload to the Foundry project and Application Insights.
 on:
   workflow_dispatch:
-  push:
-    # Run when commits are pushed to mainline branch (main or master)
-    # Set this to the mainline branch you are using
-    branches:
-      - main
+  schedule:
+    # 06:00 UTC every day
+    - cron: "0 6 * * *"
 
-# Set up permissions for deploying with secretless Azure federated credentials
-# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  evaluate:
+  scheduled-evaluation:
     runs-on: ubuntu-latest
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
       AZURE_AI_PROJECT_ENDPOINT: ${{ vars.AZURE_AI_PROJECT_ENDPOINT }}
+      AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_API_VERSION: ${{ vars.AZURE_OPENAI_API_VERSION }}
       AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME: ${{ vars.AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME }}
       AZURE_OPENAI_DEPLOYMENT_NAME: ${{ vars.AZURE_OPENAI_DEPLOYMENT_NAME }}
@@ -39,15 +37,12 @@ jobs:
 
     steps:
       - name: checkout repo content
-        uses: actions/checkout@v4 # checkout the repository content
-
-      - name: Install azd
-        uses: Azure/setup-azd@v2
+        uses: actions/checkout@v4
 
       - name: setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # install the python version needed
+          python-version: '3.11'
 
       - name: install python packages
         run: |
@@ -60,30 +55,18 @@ jobs:
           client-id: ${{ env.AZURE_CLIENT_ID }}
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-  
-      - name: Set az account
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az account set --subscription ${{env.AZURE_SUBSCRIPTION_ID}}
 
-      - name: evaluate orchestrator
+      - name: Batch evaluation (quality + safety + task adherence)
         working-directory: ./src/api
-        run: |
-          python -m evaluate.evaluate
-      
+        run: python -m evaluate.evaluate
+
+      - name: AI red-teaming scan
+        working-directory: ./src/api
+        run: python -m evaluate.red_team
+
       - name: Upload eval results as build artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: eval_result
+          name: scheduled_eval_result
           path: ./src/api/evaluate/eval_results.jsonl
-
-      - name: GitHub Summary Step
-        if: ${{ success() }}
-        working-directory: ./src/api
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          echo "📊 Promptflow Evaluation Results" >> $GITHUB_STEP_SUMMARY
-          cat evaluate/eval_results.md >> $GITHUB_STEP_SUMMARY
-        

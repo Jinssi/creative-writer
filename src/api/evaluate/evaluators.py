@@ -6,6 +6,7 @@ from opentelemetry import trace
 from opentelemetry.trace import set_span_in_context
 from azure.ai.evaluation import RelevanceEvaluator, GroundednessEvaluator, FluencyEvaluator, CoherenceEvaluator, ProtectedMaterialEvaluator
 from azure.ai.evaluation import ViolenceEvaluator, HateUnfairnessEvaluator, SelfHarmEvaluator, SexualEvaluator, ContentSafetyEvaluator
+from azure.ai.evaluation import TaskAdherenceEvaluator
 from azure.ai.evaluation import evaluate
 from azure.identity import DefaultAzureCredential
 
@@ -58,6 +59,7 @@ class ArticleEvaluator:
             "fluency": FluencyEvaluator(model_config),
             "coherence": CoherenceEvaluator(model_config),
             "groundedness": GroundednessEvaluator(model_config),
+            "task_adherence": TaskAdherenceEvaluator(model_config),
             "violence": ViolenceEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
             "hate_unfairness": HateUnfairnessEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
             "self_harm": SelfHarmEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
@@ -99,6 +101,12 @@ class ArticleEvaluator:
                     "column_mapping": {
                         "response": "${data.response}",
                         "context": "${data.context}",
+                        "query": "${data.query}",
+                    },
+                },
+                "task_adherence": {
+                    "column_mapping": {
+                        "response": "${data.response}",
                         "query": "${data.query}",
                     },
                 },

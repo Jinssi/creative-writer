@@ -1,0 +1,15 @@
+# Development / CI requirements: evaluation, red teaming, and notebook tooling.
+# Install with:  pip install -r requirements-dev.txt
+# These are intentionally NOT in the container image (they pull very large
+# dependency trees). The evaluation scripts, continuous evaluation, red teaming,
+# and the data-seeding notebook run locally or in GitHub Actions.
+-r requirements.txt
+
+azure-ai-evaluation
+azure-ai-evaluation[redteam]
+azureml-mlflow
+azure-ai-ml
+azure-ai-contentsafety
+azure-cognitiveservices-speech==1.37.0
+jupyter
+nbconvert

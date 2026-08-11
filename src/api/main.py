@@ -6,9 +6,7 @@ from prompty.tracer import trace
 from prompty.core import PromptyStream, AsyncPromptyStream
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from fastapi import FastAPI, File, UploadFile
-from evaluate.evaluators import evaluate_image
 
 from orchestrator import Task, create
 from telemetry import setup_telemetry
@@ -19,7 +17,7 @@ load_dotenv()
 app = FastAPI()
 
 code_space = os.getenv("CODESPACE_NAME")
-app_insights = os.getenv("APPINSIGHTS_CONNECTIONSTRING")
+app_insights = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
 if code_space: 
     origin_8000= f"https://{code_space}-8000.app.github.dev"
@@ -53,7 +51,7 @@ async def root():
 @trace
 async def create_article(task: Task):
     return StreamingResponse(
-        PromptyStream(
+        AsyncPromptyStream(
             "create_article", create(task.research, task.products, task.assignment)
         ),
         media_type="text/event-stream",
@@ -82,7 +80,14 @@ async def upload_image(file: UploadFile = File(...)):
         "project_name": os.environ["AZURE_AI_PROJECT_NAME"],        
     }
 
-    from evaluate.evaluate import evaluate_image
+    try:
+        from evaluate.evaluate import evaluate_image
+    except Exception:
+        return JSONResponse({"filename": file.filename,
+            "location": file_path,
+            "message": "Image saved. Content-safety evaluation is not available in this deployment.",
+            "safety": ""
+            })
     print(file_path)
     result = evaluate_image(project_scope, file_path)
 
@@ -102,7 +107,3 @@ async def upload_image(file: UploadFile = File(...)):
             "message":"This image is safe to include in the blog ✅",
             "safety": "Yes this is safe"
             })
-
-
-# TODO: fix open telemetry so it doesn't slow app so much
-FastAPIInstrumentor.instrument_app(app)

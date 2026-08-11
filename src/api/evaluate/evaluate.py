@@ -2,6 +2,8 @@
 import os
 import sys
 import json
+import asyncio
+import jsonlines
 from pathlib import Path
 from .evaluators import ArticleEvaluator, ImageEvaluator
 from orchestrator import create
@@ -115,20 +117,28 @@ def evaluate_remote(data_path):
 
 def run_orchestrator(research_context, product_context, assignment_context):
     query = {"research_context": research_context, "product_context": product_context, "assignment_context": assignment_context}
-    context = {}
-    response = None
 
-    for result in create(research_context, product_context, assignment_context,evaluate=False):
-        if not type(result) == tuple:
-            parsed_result = json.loads(result)
-        if type(parsed_result) is list:
-            if parsed_result[0] == "researcher":
-                context['research'] = parsed_result[1]
-            if parsed_result[0] == "products":
-                context['products'] = parsed_result[1]
-            if parsed_result[0] == "writer":
-                response = parsed_result[1]
-    
+    async def _collect():
+        context = {}
+        response = None
+        async for result in create(research_context, product_context, assignment_context, evaluate=False):
+            if isinstance(result, tuple):
+                continue
+            try:
+                parsed_result = json.loads(result)
+            except (json.JSONDecodeError, TypeError):
+                continue
+            if isinstance(parsed_result, list):
+                if parsed_result[0] == "researcher":
+                    context['research'] = parsed_result[1]
+                if parsed_result[0] == "products":
+                    context['products'] = parsed_result[1]
+                if parsed_result[0] == "writer":
+                    response = parsed_result[1]
+        return context, response
+
+    context, response = asyncio.run(_collect())
+
     return {
         "query": json.dumps(query), 
         "context": json.dumps(context), 
@@ -250,7 +260,7 @@ def evaluate_image(project_scope, image_path):
 
         print(f"\n===== Calling Open AI to describe image and retrieve response")
         completion = client.chat.completions.create(
-        model="gpt-4",
+        model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-sol"),
         messages= [
                         {
                             "role": "system", 

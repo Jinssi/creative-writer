@@ -8,44 +8,53 @@
     "location": {
       "value": "${AZURE_LOCATION}"
     },
-    "openAiResourceName": {
-      "value": "${AZURE_OPENAI_RESOURCE_NAME}"
+    "resourceGroupName": {
+      "value": "${AZURE_RESOURCE_GROUP}"
     },
-    "openAiResourceLocation": {
-      "value": "${AZURE_OPENAI_RESOURCE_LOCATION}"
+    "managedIdentityId": {
+      "value": "${AZURE_MANAGED_IDENTITY_ID}"
+    },
+    "managedIdentityClientId": {
+      "value": "${AZURE_CLIENT_ID}"
+    },
+    "managedIdentityPrincipalId": {
+      "value": "${AZURE_MANAGED_IDENTITY_PRINCIPAL_ID}"
+    },
+    "aiProjectEndpoint": {
+      "value": "${AZURE_AI_PROJECT_ENDPOINT}"
+    },
+    "openAiEndpoint": {
+      "value": "${AZURE_OPENAI_ENDPOINT}"
+    },
+    "openAiName": {
+      "value": "${AZURE_OPENAI_NAME}"
     },
     "openAiApiVersion": {
-      "value": "${AZURE_OPENAI_API_VERSION=2024-08-01-preview}"
+      "value": "${AZURE_OPENAI_API_VERSION=2025-04-01-preview}"
     },
-    "openAi_4_DeploymentName": {
-      "value": "${AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4}"
+    "chatDeploymentName": {
+      "value": "${AZURE_OPENAI_DEPLOYMENT_NAME=gpt-5.6-sol}"
     },
-    "openAi_4_ModelName": {
-      "value": "${AZURE_OPENAI_MODEL_NAME=gpt-4o}"
+    "evalDeploymentName": {
+      "value": "${AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME=gpt-5.6-sol-eval}"
     },
-    "openAi_4_ModelVersion": {
-      "value": "${AZURE_OPENAI_MODEL_VERSION=2024-05-13}"
+    "embeddingDeploymentName": {
+      "value": "${AZURE_EMBEDDING_NAME=text-embedding-3-large}"
     },
-    "openAi_4_eval_DeploymentName": {
-      "value": "${AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME=gpt-4-evals}"
+    "bingConnectionName": {
+      "value": "${BING_CONNECTION_NAME}"
     },
-    "openAi_4_eval_ModelName": {
-      "value": "${AZURE_OPENAI_4_EVAL_MODEL_NAME=gpt-4o-mini}"
+    "searchEndpoint": {
+      "value": "${AZURE_SEARCH_ENDPOINT}"
     },
-    "openAi_4_eval_ModelVersion": {
-      "value": "${AZURE_OPENAI_4_EVAL_MODEL_VERSION=2024-07-18}"
+    "aiResourceGroup": {
+      "value": "${AZURE_AI_RESOURCE_GROUP}"
     },
-    "openAiEmbeddingDeploymentName": {
-      "value": "${AZURE_EMBEDDING_NAME=text-embedding-ada-002}"
+    "aiProjectName": {
+      "value": "${AZURE_AI_PROJECT_NAME}"
     },
-    "principalId": {
-      "value": "${AZURE_PRINCIPAL_ID}"
-    },
-    "runningOnGh": {
-      "value": "${GITHUB_ACTIONS}"
-    },
-    "runningOnAdo": {
-      "value": "${TF_BUILD}"
+    "aiLocation": {
+      "value": "${AZURE_AI_LOCATION=swedencentral}"
     }
   }
 }

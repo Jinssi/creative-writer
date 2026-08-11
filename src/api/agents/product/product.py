@@ -20,7 +20,7 @@ load_dotenv()
 
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
-AZURE_OPENAI_DEPLOYMENT = "text-embedding-ada-002"
+AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_EMBEDDING_NAME", "text-embedding-3-large")
 AZURE_AI_SEARCH_ENDPOINT = os.getenv("AI_SEARCH_ENDPOINT")
 AZURE_AI_SEARCH_INDEX = "contoso-products"
 
@@ -37,7 +37,7 @@ def generate_embeddings(queries: List[str]) -> str:
         azure_ad_token_provider=token_provider
     )
 
-    embeddings = client.embeddings.create(input=queries, model="text-embedding-ada-002")
+    embeddings = client.embeddings.create(input=queries, model=AZURE_OPENAI_DEPLOYMENT)
     embs = [emb.embedding for emb in embeddings.data]
     items = [{"item": queries[i], "embedding": embs[i]} for i in range(len(queries))]
 

@@ -20,6 +20,8 @@ param aiSearchEndpoint string
 param aiSearchIndexName string
 param appinsights_Connectionstring string
 param aiProjectName string
+param aiProjectEndpoint string
+param bingConnectionName string = 'bing-connection'
 param subscriptionId string
 
 @secure()
@@ -94,12 +96,20 @@ module app '../core/host/container-app-upsert.bicep' = {
         value: aiProjectName
       }
       {
+        name: 'AZURE_AI_PROJECT_ENDPOINT'
+        value: aiProjectEndpoint
+      }
+      {
         name: 'AZURE_EMBEDDING_NAME'
         value: openAiEmbeddingDeploymentName
       }
       {
-        name: 'APPINSIGHTS_CONNECTIONSTRING'
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
         value: appinsights_Connectionstring
+      }
+      {
+        name: 'BING_CONNECTION_NAME'
+        value: bingConnectionName
       }
       {
         name: 'BING_SEARCH_ENDPOINT'
