@@ -27,7 +27,8 @@ export const startWritingTask = (
   assignment: string,
   addMessage: { (message: IMessage): void },
   createArticle: { (article: string): void },
-  addToArticle: { (text: string): void }
+  addToArticle: { (text: string): void },
+  onComplete?: () => void
 ) => {
   // internal function to read chunks from a stream
   function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
@@ -102,6 +103,8 @@ export const startWritingTask = (
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      onComplete?.();
     }
   };
 

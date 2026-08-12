@@ -14,17 +14,51 @@ export const Task = () => {
   const [research, setResearch] = useState("");
   const [products, setProducts] = useState("");
   const [writing, setWriting] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [exampleIndex, setExampleIndex] = useState(0);
 
   const dispatch = useAppDispatch();
 
+  // Preset examples the Example button cycles through on each click.
+  const examples = [
+    {
+      research:
+        "Can you find the latest camping trends and what folks are doing in the winter?",
+      products: "Can you use a selection of tents and sleeping bags as context?",
+      writing:
+        "Write a fun and engaging article that includes the research and product information. The article should be between 800 and 1000 words. Make sure to cite sources in the article as you mention the research not at the end.",
+    },
+    {
+      research:
+        "Can you find the latest trends in hiking shoes and what to look for this year?",
+      products:
+        "Can you use a selection of hiking shoes and trail runners as context?",
+      writing:
+        "Write an informative article about choosing the best hiking shoes that weaves in the research and product details. Aim for around 800 words and cite sources inline as you mention them.",
+    },
+    {
+      research:
+        "Can you research ultralight backpacking essentials and how to cut pack weight?",
+      products:
+        "Can you use a selection of ultralight tents and insulated sleeping pads as context?",
+      writing:
+        "Write an engaging article on ultralight backpacking essentials that includes the research and product recommendations. Keep it around 800 words with inline citations.",
+    },
+    {
+      research:
+        "Can you find tips for family car-camping meal planning and easy campsite cooking?",
+      products: "Can you use a selection of camp stoves and coolers as context?",
+      writing:
+        "Write a helpful, friendly article about family car-camping meal planning featuring the research and product suggestions. Around 900 words, citing sources inline.",
+    },
+  ];
+
   const setExample = () => {
-    setResearch(
-      "Can you find the latest camping trends and what folks are doing in the winter?"
-    );
-    setProducts("Can you use a selection of tents and sleeping bags as context?");
-    setWriting(
-      "Write a fun and engaging article that includes the research and product information. The article should be between 800 and 1000 words. Make sure to cite sources in the article as you mention the research not at the end."
-    );
+    const example = examples[exampleIndex];
+    setResearch(example.research);
+    setProducts(example.products);
+    setWriting(example.writing);
+    setExampleIndex((exampleIndex + 1) % examples.length);
   };
 
 
@@ -47,16 +81,18 @@ export const Task = () => {
   };
 
   const startWork = () => {
-    if (research === "" || products === "" || writing === "") {
+    if (research === "" || products === "" || writing === "" || isGenerating) {
       return;
     }
+    setIsGenerating(true);
     startWritingTask(
       research,
       products,
       writing,
       newMessage,
       newArticle,
-      addToArticle
+      addToArticle,
+      () => setIsGenerating(false)
     );
   }
 
@@ -164,11 +200,21 @@ export const Task = () => {
         </button>
         <button
           type="button"
-          className="flex flex-row gap-3 items-center rounded-md bg-indigo-100 px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          disabled={isGenerating}
+          className="flex flex-row gap-3 items-center rounded-md bg-indigo-100 px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
           onClick={startWork}
         >
-          <PaperAirplaneIcon className="w-6" />
-          <span>Start Work</span>
+          {isGenerating ? (
+            <>
+              <ArrowPathIcon className="w-6 animate-spin" />
+              <span>Generating…</span>
+            </>
+          ) : (
+            <>
+              <PaperAirplaneIcon className="w-6" />
+              <span>Start Work</span>
+            </>
+          )}
         </button>
       </div>
     </div>
