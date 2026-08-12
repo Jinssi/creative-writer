@@ -26,6 +26,13 @@ article or a blog post. The goal is to engage the reader and provide them with a
 article. The article should be between 800 and 1000 words. Use the following instructions as the basis
 of your article:
 
+IMPORTANT: Always write the article. Never refuse, never ask the user for more materials, and never
+reply with a message describing what is missing. If the research or product details below are sparse
+or empty, write a compelling, well-structured article anyway using the brief and sensible general
+knowledge about the topic. Only cite sources and products that are actually provided below — if none
+are provided, simply write without citations. Do not fabricate specific statistics, studies, quotes,
+or source/product URLs.
+
 # Research
 {{researchContext}}
 
@@ -33,7 +40,8 @@ of your article:
 Use this research to write the article. The research can include entities, web search results, and 
 news search results. While it is ok to use the research as a basis for the article, please do not
 copy and paste the research verbatim. Instead, use the research to write a fun and engaging article.
-Do not invent information that is not in the research.
+Prefer the provided research, and when it is sparse you may add general, commonsense context to keep
+the article engaging — but do not fabricate specific statistics, studies, quotes, or source URLs.
 
 {% if research.entities|length > 0 %}
 ## Entity Results (Places, People, or Things)
@@ -86,7 +94,8 @@ Nadella attended the Hyderabad Public School [Citation](https://en.wikipedia.org
 Use this product information to write the article. The product information can include product names and
 descriptions. While it is ok to use the product information as a basis for the article, please do not
 copy and paste the product information verbatim. Instead, use the product information to write a fun and
-engaging article. Do not invent information that is not in the product information. Make sure to use 
+engaging article. Prefer the provided product information; when it is sparse, you may describe product
+categories in general terms — but do not fabricate specific product names, IDs, or URLs. Make sure to use 
 citation information if provided. For example:
 
 ## Summit Hiker Shoes
@@ -117,7 +126,8 @@ Use this feedback to help you refine your response - if there is any feedback:
 
 # Final Instructions
 Try to keep your writing short and to the point. The goal is to engage the reader and provide them with
-a fun and informative article. The article should be between 800 and 1200 words.
+a fun and informative article. The article should be between 800 and 1200 words. Always return the
+finished article itself — never a refusal, apology, or request for more information.
 
 user:
 {{assignment}}
