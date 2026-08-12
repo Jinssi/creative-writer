@@ -6,6 +6,7 @@ import {
 import { useState } from "react";
 import { IMessage, startWritingTask } from "../store";
 import { useAppDispatch } from "../store/hooks";
+import { useTheme } from "../theme-context";
 import { addMessage } from "../store/messageSlice";
 import { addArticle, addToCurrentArticle } from "../store/articleSlice";
 import ImageUpload from "./image-upload";
@@ -18,47 +19,14 @@ export const Task = () => {
   const [exampleIndex, setExampleIndex] = useState(0);
 
   const dispatch = useAppDispatch();
-
-  // Preset examples the Example button cycles through on each click.
-  const examples = [
-    {
-      research:
-        "Can you find the latest camping trends and what folks are doing in the winter?",
-      products: "Can you use a selection of tents and sleeping bags as context?",
-      writing:
-        "Write a fun and engaging article that includes the research and product information. The article should be between 800 and 1000 words. Make sure to cite sources in the article as you mention the research not at the end.",
-    },
-    {
-      research:
-        "Can you find the latest trends in hiking shoes and what to look for this year?",
-      products:
-        "Can you use a selection of hiking shoes and trail runners as context?",
-      writing:
-        "Write an informative article about choosing the best hiking shoes that weaves in the research and product details. Aim for around 800 words and cite sources inline as you mention them.",
-    },
-    {
-      research:
-        "Can you research ultralight backpacking essentials and how to cut pack weight?",
-      products:
-        "Can you use a selection of ultralight tents and insulated sleeping pads as context?",
-      writing:
-        "Write an engaging article on ultralight backpacking essentials that includes the research and product recommendations. Keep it around 800 words with inline citations.",
-    },
-    {
-      research:
-        "Can you find tips for family car-camping meal planning and easy campsite cooking?",
-      products: "Can you use a selection of camp stoves and coolers as context?",
-      writing:
-        "Write a helpful, friendly article about family car-camping meal planning featuring the research and product suggestions. Around 900 words, citing sources inline.",
-    },
-  ];
+  const { theme } = useTheme();
 
   const setExample = () => {
-    const example = examples[exampleIndex];
+    const example = theme.examples[exampleIndex % theme.examples.length];
     setResearch(example.research);
-    setProducts(example.products);
-    setWriting(example.writing);
-    setExampleIndex((exampleIndex + 1) % examples.length);
+    setProducts(example.references);
+    setWriting(example.assignment);
+    setExampleIndex((exampleIndex + 1) % theme.examples.length);
   };
 
 
@@ -85,10 +53,12 @@ export const Task = () => {
       return;
     }
     setIsGenerating(true);
+    // Steer the agents toward the selected creative theme.
+    const themedAssignment = `${theme.domain}\n\n${writing}`;
     startWritingTask(
       research,
       products,
-      writing,
+      themedAssignment,
       newMessage,
       newArticle,
       addToArticle,
@@ -103,10 +73,10 @@ export const Task = () => {
           htmlFor="research"
           className="block text-sm font-medium leading-6 text-gray-900"
         >
-          Research
+          {theme.labels.research}
         </label>
         <p className="mt-1 text-sm leading-6 text-gray-400">
-          What kinds of things should I find?
+          What should I research for this piece?
         </p>
         <div className="mt-2">
           <div className=" flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600">
@@ -128,10 +98,10 @@ export const Task = () => {
           htmlFor="products"
           className="block text-sm font-medium leading-6 text-gray-900"
         >
-          Products
+          {theme.labels.references}
         </label>
         <p className="mt-1 text-sm leading-6 text-gray-400">
-          What products should I look at?
+          What examples or sources should I reference?
         </p>
         <div className="mt-2">
           <textarea
@@ -150,7 +120,7 @@ export const Task = () => {
           htmlFor="writing"
           className="block text-sm font-medium leading-6 text-gray-900"
         >
-          Assignment
+          {theme.labels.assignment}
         </label>
         <p className="mt-1 text-sm leading-6 text-gray-400">
           What kind of writing should I do?

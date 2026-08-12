@@ -97,10 +97,10 @@ RESEARCHER_INSTRUCTIONS = (
 )
 
 PRODUCT_INSTRUCTIONS = (
-    "You are a product marketing assistant for Contoso Outdoors. Given a description "
-    "of the products a writer needs, call the `search_products` tool to retrieve "
-    "matching catalog items, then return the tool's JSON array verbatim as your final "
-    "answer with no extra prose."
+    "You are a research assistant that finds reference material for a writer. Given a "
+    "description of the references or examples the writer needs, call the `search_products` "
+    "tool to retrieve matching items, then return the tool's JSON array verbatim as your "
+    "final answer with no extra prose. If the tool returns an empty array, return []."
 )
 
 WRITER_ROLE = "You are an expert copywriter. Follow the detailed brief you are given exactly."

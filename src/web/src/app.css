@@ -6,27 +6,27 @@ p {
   text-align: left;
 }
 
-html, body {
+html, body, #root {
   height: 100%;
   margin: 0;
   font-family: 'Inter', sans-serif;
 }
 
-main {
-  background-color: #f9fafb;
+/* Desktop / workspace wallpaper — soft purple to white */
+.cw-desktop {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(168, 85, 247, 0.45), transparent 60%),
+    radial-gradient(1000px 700px at 100% 0%, rgba(217, 70, 239, 0.35), transparent 55%),
+    radial-gradient(900px 900px at 50% 120%, rgba(124, 58, 237, 0.35), transparent 60%),
+    linear-gradient(160deg, #ede9fe 0%, #f5f3ff 40%, #faf5ff 100%);
+  background-attachment: fixed;
 }
 
-header, footer {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-section {
-  max-width: 800px;
-  margin: 0 auto;
+.cw-window {
+  box-shadow: 0 30px 60px -15px rgba(76, 29, 149, 0.35);
 }
 
 img {
-  border-radius: 10px 0 0 0;
-  box-shadow: 0px 0px 10px #888;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(124, 58, 237, 0.35);
 }
