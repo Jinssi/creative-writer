@@ -81,7 +81,9 @@ def research_topic(
         from azure.ai.projects import AIProjectClient
 
         endpoint = os.environ["AZURE_AI_PROJECT_ENDPOINT"]
-        deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-terra")
+        # The Bing-grounding agent runtime supports a narrower set of models than
+        # plain chat completions; default to a broadly-supported model and allow override.
+        deployment = os.getenv("AZURE_GROUNDING_DEPLOYMENT_NAME", "gpt-5-mini")
         connection_name = os.getenv("BING_CONNECTION_NAME", "bing-connection")
         credential = get_credential()
 
