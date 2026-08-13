@@ -19,11 +19,12 @@ def _empty_research() -> str:
 
 
 def _extract_assistant(messages):
-    """Return ``(text, citations)`` from the last assistant message.
+    """Return ``(text, citations)`` from the assistant messages.
 
-    ``citations`` are pulled from Bing grounding URL annotations (authoritative
-    real URLs), which is far more reliable than trusting the model to hand-format
-    JSON links. ``text`` is the model's prose (used only for descriptions).
+    ``citations`` come from the Bing grounding URL annotations (authoritative real
+    URLs) via the SDK's ``url_citation_annotations`` helper, which is far more
+    reliable than trusting the model to hand-format JSON links. ``text`` is the
+    model's prose (used only for descriptions).
     """
     last_text = ""
     citations = []
@@ -31,25 +32,21 @@ def _extract_assistant(messages):
     for m in messages:
         role = getattr(m, "role", None)
         role = getattr(role, "value", role)  # enum or str
-        if role and str(role).lower() != "assistant":
+        role = str(role).lower() if role is not None else ""
+        if role and role not in ("assistant", "agent"):
             continue
-        texts = []
-        for item in getattr(m, "content", None) or []:
-            text = getattr(item, "text", None)
-            if text is None:
-                continue
-            value = getattr(text, "value", None)
+        # Latest assistant text via the SDK helper (falls back to raw content).
+        for tm in getattr(m, "text_messages", None) or []:
+            value = getattr(getattr(tm, "text", None), "value", None)
             if value:
-                texts.append(value)
-            for ann in getattr(text, "annotations", None) or []:
-                citation = getattr(ann, "url_citation", None)
-                url = getattr(citation, "url", None) if citation is not None else None
-                if not url or url in seen:
-                    continue
-                seen.add(url)
-                citations.append({"url": url, "name": getattr(citation, "title", None) or url, "description": ""})
-        if texts:
-            last_text = texts[-1]
+                last_text = value
+        for ann in getattr(m, "url_citation_annotations", None) or []:
+            citation = getattr(ann, "url_citation", None)
+            url = getattr(citation, "url", None) if citation is not None else None
+            if not url or url in seen:
+                continue
+            seen.add(url)
+            citations.append({"url": url, "name": getattr(citation, "title", None) or url, "description": ""})
     return last_text, citations
 
 
@@ -79,18 +76,23 @@ def research_topic(
     Never raises: on any failure it returns an empty result set.
     """
     try:
-        from azure.ai.agents.models import BingGroundingTool
+        from azure.ai.agents import AgentsClient
+        from azure.ai.agents.models import BingGroundingTool, ListSortOrder
         from azure.ai.projects import AIProjectClient
 
         endpoint = os.environ["AZURE_AI_PROJECT_ENDPOINT"]
         deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-5.6-terra")
         connection_name = os.getenv("BING_CONNECTION_NAME", "bing-connection")
+        credential = get_credential()
 
-        with AIProjectClient(endpoint=endpoint, credential=get_credential()) as project:
-            bing_connection = project.connections.get(name=connection_name)
-            bing = BingGroundingTool(connection_id=bing_connection.id)
+        # The Bing grounding connection id lives on the project; agent CRUD lives on
+        # AgentsClient (AIProjectClient.agents is an operations group without create_agent).
+        with AIProjectClient(endpoint=endpoint, credential=credential) as project:
+            connection_id = project.connections.get(name=connection_name).id
+        bing = BingGroundingTool(connection_id=connection_id)
 
-            agent = project.agents.create_agent(
+        with AgentsClient(endpoint=endpoint, credential=credential) as agents_client:
+            agent = agents_client.create_agent(
                 model=deployment,
                 name=cw_name("researcher-bing"),
                 instructions=(
@@ -106,18 +108,18 @@ def research_topic(
             try:
                 response, citations = "", []
                 for attempt in range(2):  # one retry for transient grounding failures
-                    thread = project.agents.threads.create()
-                    project.agents.messages.create(thread_id=thread.id, role="user", content=query)
-                    run = project.agents.runs.create_and_process(thread_id=thread.id, agent_id=agent.id)
+                    thread = agents_client.threads.create()
+                    agents_client.messages.create(thread_id=thread.id, role="user", content=query)
+                    run = agents_client.runs.create_and_process(thread_id=thread.id, agent_id=agent.id)
                     if getattr(run, "status", None) == "failed":
                         print(f"research_topic run failed (attempt {attempt + 1}): {getattr(run, 'last_error', None)}")
                         continue
-                    messages = project.agents.messages.list(thread_id=thread.id)
+                    messages = agents_client.messages.list(thread_id=thread.id, order=ListSortOrder.ASCENDING)
                     response, citations = _extract_assistant(messages)
                     break
             finally:
                 try:
-                    project.agents.delete_agent(agent.id)
+                    agents_client.delete_agent(agent.id)
                 except Exception:  # noqa: BLE001
                     pass
     except Exception as exc:  # noqa: BLE001 - research is best-effort
