@@ -247,7 +247,6 @@ async def create(research_context, product_context, assignment_context, evaluate
 
     yield building_agents_message()
 
-    researcher = build_agent("researcher", RESEARCHER_INSTRUCTIONS, tools=[research_topic])
     marketer = build_agent("product-marketing", PRODUCT_INSTRUCTIONS, tools=[search_products])
     writer = build_agent("writer", WRITER_ROLE)
     editor = build_agent("editor", EDITOR_ROLE)
@@ -255,10 +254,11 @@ async def create(research_context, product_context, assignment_context, evaluate
     illustrator = build_agent("illustrator", ILLUSTRATOR_INSTRUCTIONS)
     repurposer = build_agent("repurposer", REPURPOSER_INSTRUCTIONS)
 
-    # 1. Research
+    # 1. Research — call the grounding tool directly so sources are deterministic
+    #    (relying on an LLM to "decide" to call the tool was dropping all sources).
     yield start_message("researcher")
-    research_text = await _run_text(researcher, research_context)
-    research_result = _extract_json(research_text) or {"web": [], "entities": [], "news": []}
+    research_raw = await asyncio.to_thread(research_topic, research_context)
+    research_result = _extract_json(research_raw) or {"web": [], "entities": [], "news": []}
     research_result.setdefault("entities", [])
     research_result.setdefault("news", [])
     yield complete_message("researcher", research_result)
@@ -298,8 +298,10 @@ async def create(research_context, product_context, assignment_context, evaluate
         research_feedback = editor_response.get("researchFeedback", "No Feedback")
         editor_feedback = editor_response.get("editorFeedback", "No Feedback")
 
-        research_text = await _run_text(researcher, f"{research_context}\n\nFeedback: {research_feedback}")
-        research_result = _extract_json(research_text) or research_result
+        research_raw = await asyncio.to_thread(
+            research_topic, f"{research_context}\n\nFeedback: {research_feedback}"
+        )
+        research_result = _extract_json(research_raw) or research_result
         research_result.setdefault("entities", [])
         research_result.setdefault("news", [])
         yield complete_message("researcher", research_result)

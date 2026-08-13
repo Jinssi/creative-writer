@@ -140,9 +140,18 @@ def research_topic(
     else:
         web = model_web
 
+    # Normalize so downstream (writer template, fact-checker) always gets the same shape.
+    normalized = []
+    for item in web:
+        if not isinstance(item, dict):
+            continue
+        url = item.get("url", "")
+        name = item.get("name") or item.get("title") or url
+        normalized.append({"url": url, "name": name, "title": name, "description": item.get("description", "")})
+
     return json.dumps(
         {
-            "web": web,
+            "web": normalized,
             "entities": parsed.get("entities", []) if isinstance(parsed.get("entities"), list) else [],
             "news": parsed.get("news", []) if isinstance(parsed.get("news"), list) else [],
         }
