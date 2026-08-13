@@ -56,10 +56,10 @@ export const AgentsPanel = () => {
   }, [messages]);
 
   return (
-    <div className="rounded-2xl bg-white/70 ring-1 ring-purple-100 shadow-sm p-4 mb-6">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="rounded-2xl bg-white/70 ring-1 ring-purple-100 shadow-sm p-3">
+      <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-semibold text-purple-900">Agent pipeline</span>
-        <span className="text-xs text-purple-500/70">· Microsoft Agent Framework · Foundry</span>
+        <span className="hidden sm:inline text-xs text-purple-500/70">· Microsoft Agent Framework · Foundry</span>
         {active >= 0 && (
           <span className="ml-auto flex items-center gap-1 text-xs text-purple-600">
             <ArrowPathIcon className="w-4 animate-spin" /> working…

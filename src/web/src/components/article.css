@@ -1,31 +1,51 @@
-h1 {
-  font-size: 3em;
-  margin: 0;
-  font-weight: bold;
+/* Scoped article typography — kept compact so the workspace fits one view. */
+.cw-prose h1 {
+  font-size: 1.6rem;
+  line-height: 2.1rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
 }
 
-h2 {
-  font-size: 2.5em;
-  margin: 0;
-  font-weight: bold;
-  margin-top: 10px;
+.cw-prose h2 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  margin: 1rem 0 0.25rem;
+  font-weight: 700;
 }
 
-h3 {
-  font-size: 2em;
-  margin: 0;
-  font-weight: bold;
-  margin-top: 10px;
+.cw-prose h3 {
+  font-size: 1.05rem;
+  line-height: 1.5rem;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 600;
 }
 
-p {
-  font-size: 1.1em;
-  margin: 0;
-  margin-top: 10px;
-
+.cw-prose p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0.5rem 0;
 }
 
-a {
-  color: #007bff;
-  text-decoration: none;
+.cw-prose ul,
+.cw-prose ol {
+  margin: 0.5rem 0 0.5rem 1.25rem;
+}
+
+.cw-prose ul {
+  list-style: disc;
+}
+
+.cw-prose ol {
+  list-style: decimal;
+}
+
+.cw-prose li {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0.25rem 0;
+}
+
+.cw-prose a {
+  color: #7c3aed;
+  text-decoration: underline;
 }

@@ -49,10 +49,21 @@ export const StudioExtras = () => {
   const factcheck = useMemo(() => lastOf(messages, "factchecker"), [messages]);
   const repurposed = useMemo(() => lastOf(messages, "repurposer"), [messages]);
 
-  if (!design && !factcheck && !repurposed) return null;
+  if (!design && !factcheck && !repurposed) {
+    return (
+      <div className="rounded-2xl ring-1 ring-purple-100 bg-white/60 p-5 text-sm text-purple-500/70">
+        <div className="flex items-center gap-2 mb-1 text-purple-700 font-medium">
+          <PhotoIcon className="w-5 h-5" />
+          Insights
+        </div>
+        The illustrator, fact-checker and repurposer results will appear here once an
+        article is generated.
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="space-y-6">
       {/* Illustrator */}
       {design?.image && (
         <div className="rounded-2xl overflow-hidden ring-1 ring-purple-100 bg-white shadow-sm">
@@ -102,7 +113,7 @@ export const StudioExtras = () => {
             <MegaphoneIcon className="w-5 h-5 text-purple-700" />
             <h3 className="text-lg font-semibold text-purple-900">Repurpose &amp; share</h3>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3">
             {repurposed.linkedin && (
               <div className="rounded-xl bg-purple-50/70 ring-1 ring-purple-100 p-3">
                 <div className="text-xs font-semibold text-purple-700 mb-1">LinkedIn</div>

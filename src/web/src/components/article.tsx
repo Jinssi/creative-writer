@@ -19,7 +19,7 @@ export const Article = () => {
     setMarkdownSource(articles.currentArticle);
   }, [articles.currentArticle, setMarkdownSource]);
 
-  return <Block innerClassName="text-left" outerClassName="mt-10 mb-40">{reactContent}</Block>;
+  return <Block innerClassName="cw-prose text-left">{reactContent}</Block>;
 };
 
 export default Article;
