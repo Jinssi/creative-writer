@@ -151,37 +151,37 @@ export const Task = () => {
       </div>
 
       </div>
-      <div className="flex justify-end gap-2 mt-10">
+      <div className="flex flex-wrap justify-end gap-2 mt-6">
         <button
           type="button"
-          className="flex flex-row gap-3 items-center rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          className="flex flex-row gap-2 items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
           onClick={reset}
         >
-          <ArrowPathIcon className="w-6" />
+          <ArrowPathIcon className="w-5" />
           <span>Reset</span>
         </button>
         <button
           type="button"
-          className="flex flex-row gap-3 items-center rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          className="flex flex-row gap-2 items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
           onClick={setExample}
         >
-          <ClipboardDocumentIcon className="w-6" />
+          <ClipboardDocumentIcon className="w-5" />
           <span>Example</span>
         </button>
         <button
           type="button"
           disabled={isGenerating}
-          className="flex flex-row gap-3 items-center rounded-md bg-indigo-100 px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex flex-row gap-2 items-center rounded-md bg-indigo-100 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed"
           onClick={startWork}
         >
           {isGenerating ? (
             <>
-              <ArrowPathIcon className="w-6 animate-spin" />
+              <ArrowPathIcon className="w-5 animate-spin" />
               <span>Generating…</span>
             </>
           ) : (
             <>
-              <PaperAirplaneIcon className="w-6" />
+              <PaperAirplaneIcon className="w-5" />
               <span>Start Work</span>
             </>
           )}

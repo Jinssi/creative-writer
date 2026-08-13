@@ -2,6 +2,7 @@ import './app.css';
 import { version } from "./version";
 import Toolbar from "./components/toolbar";
 import Article from "./components/article";
+import AgentsPanel from "./components/agents-panel";
 import StudioExtras from "./components/studio-extras";
 import Task from './components/task';
 import ThemeMenu from './components/theme-menu';
@@ -65,6 +66,7 @@ function App() {
 
                 {/* Article panel */}
                 <section className="lg:w-2/3 flex-grow mt-8 lg:mt-0">
+                  <AgentsPanel />
                   <div className="rounded-2xl bg-white ring-1 ring-purple-100 shadow-sm p-6 min-h-[24rem]">
                     <h2 className="text-2xl font-semibold text-purple-900 mb-4">Your article</h2>
                     <Article />
