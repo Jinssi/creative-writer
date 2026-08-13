@@ -11,7 +11,7 @@ from typing import Annotated
 
 from prompty.tracer import trace
 
-from agent_framework_client import get_credential
+from agent_framework_client import cw_name, get_credential
 
 
 def _empty_research() -> str:
@@ -92,7 +92,7 @@ def research_topic(
 
             agent = project.agents.create_agent(
                 model=deployment,
-                name="researcher-bing",
+                name=cw_name("researcher-bing"),
                 instructions=(
                     "You are a web researcher. Use the Bing tool to find 4-6 authoritative, "
                     "recent sources that directly answer the query, and cite each source you "

@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 
 from agent_framework_client import build_agent, prompty_instructions
 from agents.tools import research_topic, search_products
+from agents.illustrator import generate_hero_image
 from agents.writer import writer as writer_utils
 
 # Evaluation deps are optional at runtime (they live in requirements-dev.txt).
@@ -32,7 +33,8 @@ except Exception:  # noqa: BLE001 - keep the API runnable without the eval stack
 BASE = Path(__file__).resolve().parent
 
 types = Literal[
-    "message", "researcher", "marketing", "designer", "writer", "editor", "error", "partial",
+    "message", "researcher", "marketing", "designer", "writer", "editor",
+    "factchecker", "repurposer", "error", "partial",
 ]
 
 
@@ -106,6 +108,33 @@ PRODUCT_INSTRUCTIONS = (
 WRITER_ROLE = "You are an expert copywriter. Follow the detailed brief you are given exactly."
 EDITOR_ROLE = "You are a meticulous editor. Respond only with the JSON object requested."
 
+FACT_CHECKER_INSTRUCTIONS = (
+    "You are a fact-checker. You are given an article and the list of web sources that were "
+    "gathered for it. Verify the article's key factual claims strictly against those sources. "
+    "Return ONLY a JSON object shaped as "
+    '{"status": "supported|mixed|unsupported", "summary": "one sentence", '
+    '"claims": [{"claim": "", "status": "supported|unsupported|uncertain", "source": "url or empty"}]}. '
+    "Judge up to 6 of the most important claims. A claim is 'supported' only if a provided source "
+    "backs it; 'uncertain' if no source addresses it; 'unsupported' if a source contradicts it. "
+    "No prose outside the JSON, no code fences."
+)
+
+ILLUSTRATOR_INSTRUCTIONS = (
+    "You are an art director. Given an article and its creative theme, write ONE concise, vivid "
+    "image-generation prompt (max 60 words) for a tasteful editorial hero image that fits the "
+    "article. Describe subject, setting, mood, style and color palette. Do not include any text, "
+    "words, logos or watermarks in the image. Return ONLY the prompt text, nothing else."
+)
+
+REPURPOSER_INSTRUCTIONS = (
+    "You are a social media manager. Given a finished article, repurpose it for distribution. "
+    "Return ONLY a JSON object shaped as "
+    '{"linkedin": "", "x_thread": ["", ""], "newsletter": ""}. '
+    "'linkedin' is a professional post (<= 120 words) with 2-3 relevant hashtags. 'x_thread' is "
+    "2-4 short posts (<= 280 chars each) that summarize the article as a thread. 'newsletter' is a "
+    "2-3 sentence teaser blurb. No prose outside the JSON, no code fences."
+)
+
 
 def _extract_json(text: str):
     """Best-effort extraction of a JSON object/array from an agent's text response."""
@@ -153,6 +182,38 @@ async def _run_editor(editor, article, feedback):
     return parsed
 
 
+async def _run_factcheck(fact_checker, article, research_result):
+    sources = (research_result or {}).get("web", []) if isinstance(research_result, dict) else []
+    sources_text = "\n".join(
+        f"- {s.get('name', '')}: {s.get('url', '')} — {s.get('description', '')}"
+        for s in sources if isinstance(s, dict)
+    ) or "(no sources were gathered)"
+    text = await _run_text(fact_checker, f"SOURCES:\n{sources_text}\n\nARTICLE:\n{article}")
+    parsed = _extract_json(text)
+    if not isinstance(parsed, dict):
+        parsed = {"status": "uncertain", "summary": "Fact-check unavailable.", "claims": []}
+    parsed.setdefault("claims", [])
+    return parsed
+
+
+async def _run_illustrate(illustrator, article, assignment_context):
+    prompt_text = (
+        await _run_text(illustrator, f"THEME/BRIEF:\n{assignment_context}\n\nARTICLE:\n{article[:4000]}")
+    ).strip().strip('"')
+    # Image generation is blocking network I/O — run it off the event loop.
+    image = await asyncio.to_thread(generate_hero_image, prompt_text) if prompt_text else None
+    return {"prompt": prompt_text, "image": image}
+
+
+async def _run_repurpose(repurposer, article):
+    text = await _run_text(repurposer, article)
+    parsed = _extract_json(text)
+    if not isinstance(parsed, dict):
+        parsed = {"linkedin": "", "x_thread": [], "newsletter": ""}
+    parsed.setdefault("x_thread", [])
+    return parsed
+
+
 async def _stream_writer(writer, research_context, research, product_context, products, assignment, feedback):
     """Render the writer prompt, stream tokens as partial messages, and return the full text."""
     prompt = _render_prompty(
@@ -190,6 +251,9 @@ async def create(research_context, product_context, assignment_context, evaluate
     marketer = build_agent("product-marketing", PRODUCT_INSTRUCTIONS, tools=[search_products])
     writer = build_agent("writer", WRITER_ROLE)
     editor = build_agent("editor", EDITOR_ROLE)
+    fact_checker = build_agent("fact-checker", FACT_CHECKER_INSTRUCTIONS)
+    illustrator = build_agent("illustrator", ILLUSTRATOR_INSTRUCTIONS)
+    repurposer = build_agent("repurposer", REPURPOSER_INSTRUCTIONS)
 
     # 1. Research
     yield start_message("researcher")
@@ -263,6 +327,33 @@ async def create(research_context, product_context, assignment_context, evaluate
 
         yield complete_message("editor", editor_response)
         yield complete_message("writer", {"complete": True})
+
+    final_article = processed_writer_result["article"]
+
+    # 6. Fact-checker (fact-checker-CW): verify claims against the gathered sources
+    yield start_message("factchecker")
+    try:
+        factcheck = await _run_factcheck(fact_checker, final_article, research_result)
+    except Exception as exc:  # noqa: BLE001 - post-processing is best-effort
+        factcheck = {"status": "uncertain", "summary": f"Fact-check skipped: {exc}", "claims": []}
+    yield complete_message("factchecker", factcheck)
+
+    # 7. Illustrator (illustrator-CW): craft a prompt and render a hero image
+    yield start_message("designer")
+    try:
+        design = await _run_illustrate(illustrator, final_article, assignment_context)
+    except Exception as exc:  # noqa: BLE001 - illustration is best-effort
+        print(f"illustration skipped: {exc}")
+        design = {"prompt": "", "image": None}
+    yield complete_message("designer", design)
+
+    # 8. Repurposer (repurposer-CW): social + newsletter variants
+    yield start_message("repurposer")
+    try:
+        repurposed = await _run_repurpose(repurposer, final_article)
+    except Exception as exc:  # noqa: BLE001 - repurposing is best-effort
+        repurposed = {"linkedin": "", "x_thread": [], "newsletter": ""}
+    yield complete_message("repurposer", repurposed)
 
     # Needed by evaluate.evaluate when called externally
     yield send_research(research_result)

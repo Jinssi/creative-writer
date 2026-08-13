@@ -12,6 +12,19 @@ from azure.identity import DefaultAzureCredential
 from agent_framework import Agent
 from agent_framework.foundry import FoundryChatClient
 
+# ---- Agent naming convention (see docs/agent-naming.md) ----
+# Every agent that belongs to the Creative Writer workload carries the "-CW"
+# suffix so it is instantly identifiable in the shared Foundry project, in
+# traces, and in monitoring. Use cw_name() (or build_agent, which applies it
+# automatically) whenever you name an agent for this app.
+WORKLOAD_SUFFIX = "CW"
+
+
+def cw_name(role: str) -> str:
+    """Return the workload-qualified agent name, e.g. ``researcher`` -> ``researcher-CW``."""
+    role = role.strip()
+    return role if role.endswith(f"-{WORKLOAD_SUFFIX}") else f"{role}-{WORKLOAD_SUFFIX}"
+
 
 def get_credential() -> DefaultAzureCredential:
     """DefaultAzureCredential, pinned to the shared managed identity when deployed.
@@ -52,10 +65,13 @@ def build_agent(
     tools: list | None = None,
     model: str | None = None,
 ) -> Agent:
-    """Construct an Agent Framework agent on the shared Foundry project."""
+    """Construct an Agent Framework agent on the shared Foundry project.
+
+    The agent name is automatically qualified with the ``-CW`` workload suffix.
+    """
     return Agent(
         client=chat_client(model),
-        name=name,
+        name=cw_name(name),
         instructions=instructions,
         description=description,
         tools=tools or [],

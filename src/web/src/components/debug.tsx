@@ -7,6 +7,9 @@ import {
   AcademicCapIcon,
   UserIcon,
   PencilIcon,
+  PhotoIcon,
+  ShieldCheckIcon,
+  MegaphoneIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -52,6 +55,12 @@ export const Debug = () => {
         return "bg-violet-200 text-zinc-600";
       case "editor":
         return "bg-amber-200 text-zinc-600";
+      case "designer":
+        return "bg-fuchsia-200 text-zinc-600";
+      case "factchecker":
+        return "bg-teal-200 text-zinc-600";
+      case "repurposer":
+        return "bg-purple-200 text-zinc-600";
       case "error":
         return "bg-red-200 text-zinc-600";
       default:
@@ -71,6 +80,12 @@ export const Debug = () => {
         return <UserIcon className="w-6 stroke-violet-600" />;
         case "editor":
           return <PencilIcon className="w-6 stroke-amber-600" />;
+      case "designer":
+        return <PhotoIcon className="w-6 stroke-fuchsia-600" />;
+      case "factchecker":
+        return <ShieldCheckIcon className="w-6 stroke-teal-600" />;
+      case "repurposer":
+        return <MegaphoneIcon className="w-6 stroke-purple-600" />;
       case "error":
         return <BugAntIcon className="w-6 stroke-red-600" />;
       default:
