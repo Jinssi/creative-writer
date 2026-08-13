@@ -21,6 +21,18 @@ export interface IChatTurn {
   type: "user" | "assistant";
 }
 
+export const apiBase = (): string => {
+  const hostname = window.location.hostname;
+  const apiPort = 8000;
+  const endpoint =
+    (hostname === "localhost" || hostname === "127.0.0.1")
+      ? `http://localhost:${apiPort}`
+      : hostname.endsWith("github.dev")
+      ? `${githubDevSubsPort(hostname, apiPort)}/`
+      : "";
+  return endpoint.endsWith("/") ? endpoint : endpoint + "/";
+};
+
 export const startWritingTask = (
   research: string,
   products: string,

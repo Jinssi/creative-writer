@@ -1,14 +1,16 @@
 import os
+import base64
 from pathlib import Path
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from prompty.tracer import trace
 from prompty.core import PromptyStream, AsyncPromptyStream
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import StreamingResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
 
 from orchestrator import Task, create
+from agents.image_store import get_image
 from telemetry import setup_telemetry
 
 base = Path(__file__).resolve().parent
@@ -45,6 +47,21 @@ setup_telemetry(app)
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.get("/api/image/{image_id}")
+async def get_article_image(image_id: str):
+    """Serve a generated hero image stored by the illustrator agent."""
+    data = get_image(image_id)
+    if not isinstance(data, str) or not data.startswith("data:"):
+        return Response(status_code=404)
+    header, _, b64 = data.partition(",")
+    media_type = header[5:].split(";")[0] or "image/png"
+    try:
+        raw = base64.b64decode(b64)
+    except Exception:  # noqa: BLE001
+        return Response(status_code=404)
+    return Response(content=raw, media_type=media_type, headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.post("/api/article")

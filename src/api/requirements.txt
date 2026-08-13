@@ -10,6 +10,7 @@ pandas
 jsonlines
 python-dotenv==1.0.1
 azure-search-documents
+ddgs
 gunicorn==23.0.0
 validators
 tenacity

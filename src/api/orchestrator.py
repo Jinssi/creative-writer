@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 from agent_framework_client import build_agent, prompty_instructions
 from agents.tools import research_topic, search_products
 from agents.illustrator import generate_hero_image
+from agents.image_store import put_image
 from agents.writer import writer as writer_utils
 
 # Evaluation deps are optional at runtime (they live in requirements-dev.txt).
@@ -202,7 +203,9 @@ async def _run_illustrate(illustrator, article, assignment_context):
     ).strip().strip('"')
     # Image generation is blocking network I/O — run it off the event loop.
     image = await asyncio.to_thread(generate_hero_image, prompt_text) if prompt_text else None
-    return {"prompt": prompt_text, "image": image}
+    # Keep the (large) base64 out of the stream: store it and stream only an id.
+    image_id = put_image(image) if image else None
+    return {"prompt": prompt_text, "image_id": image_id}
 
 
 async def _run_repurpose(repurposer, article):
@@ -346,7 +349,7 @@ async def create(research_context, product_context, assignment_context, evaluate
         design = await _run_illustrate(illustrator, final_article, assignment_context)
     except Exception as exc:  # noqa: BLE001 - illustration is best-effort
         print(f"illustration skipped: {exc}")
-        design = {"prompt": "", "image": None}
+        design = {"prompt": "", "image_id": None}
     yield complete_message("designer", design)
 
     # 8. Repurposer (repurposer-CW): social + newsletter variants

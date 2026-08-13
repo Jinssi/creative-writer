@@ -23,8 +23,7 @@ already present. Use `cw_name()` for any agent created outside `build_agent`
 
 | Role | Agent name | Purpose |
 | --- | --- | --- |
-| Researcher | `researcher-CW` | Plans research and calls the web-grounding tool |
-| Researcher (grounding) | `researcher-bing-CW` | Ephemeral Foundry agent that runs Bing grounding |
+| Researcher | (tool, no agent) | Keyless web search (DuckDuckGo); returns cited sources |
 | Product / references | `product-marketing-CW` | Retrieves optional reference material |
 | Writer | `writer-CW` | Drafts the article from the brief |
 | Editor | `editor-CW` | Reviews the draft and drives the feedback loop |

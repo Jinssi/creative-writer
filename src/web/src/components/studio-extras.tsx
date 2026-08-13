@@ -8,7 +8,7 @@ import {
   MegaphoneIcon,
 } from "@heroicons/react/24/outline";
 import { useAppSelector } from "../store/hooks";
-import { IMessage } from "../store";
+import { IMessage, apiBase } from "../store";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const lastOf = (messages: IMessage[], type: string): any | null => {
@@ -65,9 +65,13 @@ export const StudioExtras = () => {
   return (
     <div className="space-y-6">
       {/* Illustrator */}
-      {design?.image && (
+      {(design?.image_id || design?.image) && (
         <div className="rounded-2xl overflow-hidden ring-1 ring-purple-100 bg-white shadow-sm">
-          <img src={design.image} alt={design.prompt || "Article illustration"} className="w-full object-cover" />
+          <img
+            src={design.image_id ? `${apiBase()}api/image/${design.image_id}` : design.image}
+            alt={design.prompt || "Article illustration"}
+            className="w-full object-cover"
+          />
           <div className="flex items-center gap-2 px-4 py-2 text-xs text-purple-700/70 bg-purple-50/60">
             <PhotoIcon className="w-4 h-4" />
             <span className="truncate">{design.prompt}</span>
