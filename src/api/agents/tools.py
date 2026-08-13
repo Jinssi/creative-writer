@@ -98,12 +98,11 @@ def research_topic(
                 model=deployment,
                 name=cw_name("researcher-bing"),
                 instructions=(
-                    "You are a web researcher. Use the Bing tool to find 4-6 authoritative, "
-                    "recent sources that directly answer the query, and cite each source you "
-                    "use. Then return ONLY a JSON object shaped as "
-                    '{"web": [{"url": "", "name": "", "description": ""}], "entities": [], "news": []}. '
-                    "Each description is 1-2 sentences summarizing what that source says about "
-                    "the query. No code fences, no prose outside the JSON."
+                    "You are a web researcher. You MUST call the Bing grounding tool to search "
+                    "the web for the user's query, and base your answer ONLY on those search "
+                    "results — never answer from prior knowledge without searching. Write a short "
+                    "3-5 sentence briefing of what the sources say and cite each source you use "
+                    "inline. Always include the citations."
                 ),
                 tools=bing.definitions,
             )
